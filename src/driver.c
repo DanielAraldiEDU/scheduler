@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
     // deadline = atoi(strsep(&temp, ","));
 
     // add the task to the scheduler's list of tasks
-    add(name, priority, burst);
     printf("%s, %i, %i\n", name, priority, burst);
+    add(name, priority, burst);
 
     // to EDF only
     // add(name, priority, burst, deadline);

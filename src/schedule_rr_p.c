@@ -4,7 +4,7 @@
 #include "list.h"
 #include "task.h"
 
-struct node **head = NULL;
+struct node *priorityArray[MAX_PRIORITY];
 
 // add a task to the list
 void add(char *name, int priority, int burst)
@@ -15,7 +15,7 @@ void add(char *name, int priority, int burst)
   newTask->priority = priority;
   newTask->burst = burst;
 
-  insert(head, newTask);
+  insert(&priorityArray[priority - 1], newTask);
 }
 
 // invoke the scheduler
