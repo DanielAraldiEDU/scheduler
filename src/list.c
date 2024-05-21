@@ -9,8 +9,20 @@
 #include "list.h"
 #include "task.h"
 
+// add a new task to the list of execution tasks
+void insertExecutionTask(struct executionNode **head, Task *newTask, int slice)
+{
+  // add the new task to the list
+  struct executionNode *newExecutionNode = malloc(sizeof(struct executionNode));
+
+  newExecutionNode->task = newTask;
+  newExecutionNode->slice = slice;
+  newExecutionNode->next = *head;
+  *head = newExecutionNode;
+}
+
 // add a new task to the list of tasks
-void insert(struct node **head, Task *newTask)
+void insertTask(struct node **head, Task *newTask)
 {
   // add the new task to the list
   struct node *newNode = malloc(sizeof(struct node));
@@ -48,7 +60,7 @@ void delete(struct node **head, Task *task)
 }
 
 // traverse the list
-void traverse(struct node *head)
+void traverseTasks(struct node *head)
 {
   struct node *temp;
   temp = head;
@@ -56,6 +68,19 @@ void traverse(struct node *head)
   while (temp != NULL)
   {
     printf("[%s] [%d] [%d]\n", temp->task->name, temp->task->priority, temp->task->burst);
+    temp = temp->next;
+  }
+}
+
+void traverseExecutionTasks(struct executionNode *head)
+{
+  struct executionNode *temp;
+  temp = head;
+  Task *task = temp->task;
+
+  while (temp != NULL)
+  {
+    printf("[%s] [%d] [%d] [%d] [%d]\n", task->name, task->priority, task->burst, task->remainingBurst, temp->slice);
     temp = temp->next;
   }
 }

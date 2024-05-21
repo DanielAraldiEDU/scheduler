@@ -10,7 +10,17 @@ struct node
   struct node *next;
 };
 
+// representation of a execution task
+struct executionNode
+{
+  Task *task;
+  int slice;
+  struct executionNode *next;
+};
+
 // insert and delete operations.
-void insert(struct node **head, Task *task);
+void insertExecutionTask(struct executionNode **head, Task *newTask, int slice);
+void traverseExecutionTasks(struct executionNode *head);
+void insertTask(struct node **head, Task *newTask);
 void delete(struct node **head, Task *task);
-void traverse(struct node *head);
+void traverseTasks(struct node *head);
