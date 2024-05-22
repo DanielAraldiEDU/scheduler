@@ -13,6 +13,7 @@
 #include "task.h"
 #include "list.h"
 #include "schedule_rr_p.h"
+#include "cpu.h"
 // #include "schedule_edf.h"
 
 #define SIZE 100
@@ -53,7 +54,8 @@ int main(int argc, char *argv[])
   fclose(in);
 
   // invoke the scheduler
-  schedule();
+  int quantum = QUANTUM;
+  schedule(quantum);
 
   return 0;
 }

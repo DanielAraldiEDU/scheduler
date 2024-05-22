@@ -4,14 +4,13 @@
 #include "schedule_rr_p.h"
 #include "list.h"
 #include "task.h"
-#include "cpu.h"
 
-// priority array
-struct node *priorityArray[MAX_PRIORITY];
 // counter of priority array
-int counterPriorityArray[MAX_PRIORITY] = {0};
-// round robin array
-struct executionNode *roundRobin[RR_LENGTH];
+int priorityCounterArray[MAX_PRIORITY] = {0};
+// priority lue array
+struct taskLue priorityArray[MAX_PRIORITY];
+// round robin lue
+struct executionLue roundRobin;
 
 // add a task to the list
 void add(char *name, int priority, int burst)
@@ -24,55 +23,66 @@ void add(char *name, int priority, int burst)
   newTask->remainingBurst = burst;
   const int index = priority - 1;
 
-  counterPriorityArray[index] += 1;
+  if (priorityCounterArray[index] == 0)
+    initializeLue(&priorityArray[index]);
+
+  priorityCounterArray[index] += 1;
   insertTask(&priorityArray[index], newTask);
 }
 
-void printTasks()
+// reset priority array
+void resetPriorityArray()
 {
-  for (int i = 0; i < MAX_PRIORITY; i++)
-  {
-    printf("\nPriority %i:\n", i + 1);
-    traverseTasks(priorityArray[i]);
-  }
+  for (int index = 0; index < MAX_PRIORITY; index++)
+    resetTasksLue(&priorityArray[index]);
 }
 
 // invoke the scheduler
-void schedule()
+void schedule(int quantum)
 {
-  struct executionNode *roundRobin[RR_LENGTH];
+  initializeExecutionLue(&roundRobin);
 
   for (int i = 0; i < MAX_PRIORITY; i++)
   {
-    if (priorityArray[i] == NULL)
+    if (priorityArray[i].start == NULL)
       continue;
 
-    if (priorityArray[i]->next == NULL)
+    if (priorityArray[i].start->next == NULL)
     {
-      int slice = priorityArray[i]->task->burst;
-      insertExecutionTask(&roundRobin[0], priorityArray[i]->task, slice);
+      int slice = priorityArray[i].start->task->burst;
+      insertExecutionTask(&roundRobin, priorityArray[i].start->task, slice);
     }
     else
     {
-      int counterDone = 0;
-      struct node *firstTask = priorityArray[i];
+      int doneCounter = 0;
+      struct node *firstTask = priorityArray[i].start;
       struct node *currentTask = firstTask;
 
-      while (counterDone < counterPriorityArray[i])
+      while (doneCounter < priorityCounterArray[i])
       {
-        if (currentTask->task->remainingBurst < QUANTUM)
+        if (currentTask->task->remainingBurst == 0)
         {
-          insertExecutionTask(&roundRobin[0], currentTask->task, currentTask->task->remainingBurst);
+          if (currentTask->next != NULL)
+            currentTask = currentTask->next;
+          else
+            currentTask = firstTask;
+
+          continue;
+        }
+
+        if (currentTask->task->remainingBurst < quantum)
+        {
+          insertExecutionTask(&roundRobin, currentTask->task, currentTask->task->remainingBurst);
           currentTask->task->remainingBurst = 0;
         }
         else
         {
-          insertExecutionTask(&roundRobin[0], currentTask->task, QUANTUM);
-          currentTask->task->remainingBurst -= QUANTUM;
+          insertExecutionTask(&roundRobin, currentTask->task, quantum);
+          currentTask->task->remainingBurst -= quantum;
         }
 
         if (currentTask->task->remainingBurst == 0)
-          counterDone++;
+          doneCounter++;
 
         if (currentTask->next == NULL)
           currentTask = firstTask;
@@ -82,5 +92,6 @@ void schedule()
     }
   }
 
-  traverseExecutionTasks(roundRobin[0]);
+  traverseExecutionTasks(roundRobin);
+  resetExecutionLue(&roundRobin);
 }

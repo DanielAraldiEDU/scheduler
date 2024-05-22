@@ -10,6 +10,11 @@ struct node
   struct node *next;
 };
 
+struct taskLue
+{
+  struct node *start, *end;
+};
+
 // representation of a execution task
 struct executionNode
 {
@@ -18,9 +23,20 @@ struct executionNode
   struct executionNode *next;
 };
 
+struct executionLue
+{
+  struct executionNode *start, *end;
+};
+
 // insert and delete operations.
-void insertExecutionTask(struct executionNode **head, Task *newTask, int slice);
-void traverseExecutionTasks(struct executionNode *head);
-void insertTask(struct node **head, Task *newTask);
+void insertExecutionTask(struct executionLue *lue, Task *newTask, int slice);
+void traverseExecutionTasks(struct executionLue lue);
+void initializeExecutionLue(struct executionLue *lue);
+void resetExecutionLue(struct executionLue *lue);
+
+void insertTask(struct taskLue *lue, Task *newTask);
 void delete(struct node **head, Task *task);
-void traverseTasks(struct node *head);
+void traverseTasks(struct taskLue lue);
+void initializeLue(struct taskLue *lue);
+
+void resetTasksLue(struct taskLue *lue);
