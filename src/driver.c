@@ -57,5 +57,18 @@ int main(int argc, char *argv[])
   int quantum = QUANTUM;
   schedule(quantum);
 
+  // execute the tasks in the ready queue
+  struct executionNode *currentTask = readyQueue.start;
+  int time = 0;
+
+  while (currentTask != NULL)
+  {
+    run(currentTask->task, currentTask->slice, &time);
+    currentTask = currentTask->next;
+  }
+
+  // free the memory
+  resetExecutionLue(&readyQueue);
+  resetPriorityArray();
   return 0;
 }
