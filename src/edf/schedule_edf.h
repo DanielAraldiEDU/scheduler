@@ -11,4 +11,4 @@ void add(char *name, int priority, int burst, int deadline);
 void resetPriorityArray();
 
 // invoke the scheduler
-void schedule(int quantum);
+void schedule();

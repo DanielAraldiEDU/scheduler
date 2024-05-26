@@ -5,7 +5,8 @@
 #include "list.h"
 #include "task.h"
 
-// add a task to the list
+// total time burst
+int totalTimeBurst = 0;
 // counter of priority array
 int priorityCounterArray[MAX_PRIORITY] = {0};
 // priority lue array
@@ -24,6 +25,8 @@ void add(char *name, int priority, int burst, int deadline)
   newTask->remainingBurst = burst;
   newTask->deadline = deadline;
   const int index = priority - 1;
+
+  totalTimeBurst += burst;
 
   if (priorityCounterArray[index] == 0)
     initializeLue(&priorityArray[index]);
@@ -44,53 +47,97 @@ void schedule()
 {
   initializeExecutionLue(&readyQueue);
 
-  for (int i = 0; i < MAX_PRIORITY; i++)
+  struct node *currentNode = NULL;
+  struct executionNode *currentExecutionNode = NULL;
+  struct task *executingTask = NULL;
+  struct task *currentTask = NULL;
+  // time execution
+  int timeExecuting = 0;
+
+  // time
+  for (int time = 0; time <= totalTimeBurst; time++)
   {
-    if (priorityArray[i].start == NULL)
+    // `isSelected` is boolean value
+    int isSelected = 0;
+
+    for (int i = 0; i < MAX_PRIORITY; i++)
+    {
+      currentNode = priorityArray[i].start;
+      while (currentNode != NULL)
+      {
+        currentTask = currentNode->task;
+
+        if (currentTask->remainingBurst > 0)
+        {
+          if ((currentTask->deadline - currentTask->remainingBurst) == time)
+          {
+            currentExecutionNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
+
+            if (executingTask != NULL)
+            {
+              currentExecutionNode->slice = timeExecuting;
+              executingTask->remainingBurst = executingTask->burst - timeExecuting;
+            }
+
+            executingTask = currentTask;
+            isSelected = 1;
+            timeExecuting = 0;
+            break;
+          }
+        }
+
+        currentNode = currentNode->next;
+      }
+
+      if (isSelected)
+        break;
+    }
+
+    if (isSelected)
       continue;
 
-    if (priorityArray[i].start->next == NULL)
+    if (executingTask != NULL && timeExecuting < executingTask->remainingBurst)
     {
-      int slice = priorityArray[i].start->task->burst;
-      insertExecutionTask(&readyQueue, priorityArray[i].start->task, slice);
+      timeExecuting++;
+      continue;
     }
     else
     {
-      int doneCounter = 0;
-      struct node *firstTask = priorityArray[i].start;
-      struct node *currentTask = firstTask;
+      if (executingTask != NULL)
+        executingTask->remainingBurst = 0;
 
-      while (doneCounter < priorityCounterArray[i])
+      timeExecuting = 0;
+      executingTask = NULL;
+    }
+
+    for (int i = 0; i < MAX_PRIORITY; i++)
+    {
+      currentNode = priorityArray[i].start;
+
+      while (currentNode != NULL)
       {
-        if (currentTask->task->remainingBurst == 0)
-        {
-          if (currentTask->next != NULL)
-            currentTask = currentTask->next;
-          else
-            currentTask = firstTask;
+        currentTask = currentNode->task;
 
-          continue;
+        if (currentTask->remainingBurst > 0)
+        {
+          insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
+          currentTask->remainingBurst = 0;
+          executingTask = currentTask;
+          isSelected = 1;
+          break;
         }
 
-        if (currentTask->task->remainingBurst < quantum)
-        {
-          insertExecutionTask(&readyQueue, currentTask->task, currentTask->task->remainingBurst);
-          currentTask->task->remainingBurst = 0;
-        }
-        else
-        {
-          insertExecutionTask(&readyQueue, currentTask->task, quantum);
-          currentTask->task->remainingBurst -= quantum;
-        }
-
-        if (currentTask->task->remainingBurst == 0)
-          doneCounter++;
-
-        if (currentTask->next == NULL)
-          currentTask = firstTask;
-        else
-          currentTask = currentTask->next;
+        currentNode = currentNode->next;
       }
+
+      if (isSelected)
+        break;
     }
   }
+
+  // for (int i = 0; i < MAX_PRIORITY; i++)
+  // {
+  //   traverseTasks(priorityArray[i]);
+  // }
+  traverseExecutionTasks(readyQueue);
 }

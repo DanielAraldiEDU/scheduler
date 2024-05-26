@@ -39,30 +39,26 @@ int main(int argc, char *argv[])
     deadline = atoi(strsep(&temp, ","));
 
     // add the task to the scheduler's list of tasks
-    // printf("%s, %i, %i\n", name, priority, burst, deadline);
-
     add(name, priority, burst, deadline);
-    printf("%s, %i, %i, %i\n", name, priority, burst, deadline);
-
+    // printf("%s, %i, %i, %i\n", name, priority, burst, deadline);
     free(temp);
   }
 
   fclose(in);
 
   // invoke the scheduler
-  int quantum = QUANTUM;
-  schedule(quantum);
+  schedule();
 
   // execute the tasks in the ready queue
   struct executionNode *currentTask = readyQueue.start;
   // time unit
   int time = 0;
 
-  while (currentTask != NULL)
-  {
-    run(currentTask->task, currentTask->slice, &time);
-    currentTask = currentTask->next;
-  }
+  // while (currentTask != NULL)
+  // {
+  //   run(currentTask->task, currentTask->slice, &time);
+  //   currentTask = currentTask->next;
+  // }
 
   // free the memory
   resetExecutionLue(&readyQueue);

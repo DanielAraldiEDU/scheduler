@@ -34,7 +34,7 @@ void traverseTasks(struct taskLue lue);
 void initializeLue(struct taskLue *lue);
 void resetTasksLue(struct taskLue *lue);
 
-void insertExecutionTask(struct executionLue *lue, Task *newTask, int slice);
+struct executionLue *insertExecutionTask(struct executionLue *lue, Task *newTask, int slice);
 void traverseExecutionTasks(struct executionLue lue);
 void initializeExecutionLue(struct executionLue *lue);
 void resetExecutionLue(struct executionLue *lue);

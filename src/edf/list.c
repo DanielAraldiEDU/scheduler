@@ -67,7 +67,7 @@ void resetTasksLue(struct taskLue *lue)
 }
 
 // add a new task to the list of execution tasks
-void insertExecutionTask(struct executionLue *lue, Task *newTask, int slice)
+struct executionLue *insertExecutionTask(struct executionLue *lue, Task *newTask, int slice)
 {
   // add the new task to the list
   struct executionNode *newExecutionNode = malloc(sizeof(struct executionNode));
@@ -86,6 +86,8 @@ void insertExecutionTask(struct executionLue *lue, Task *newTask, int slice)
     lue->end->next = newExecutionNode;
     lue->end = newExecutionNode;
   }
+
+  return newExecutionNode;
 }
 
 // traverse the execution task list
@@ -97,7 +99,7 @@ void traverseExecutionTasks(struct executionLue lue)
   while (temp != NULL)
   {
     task = temp->task;
-    printf("%s: Priority: [%i] | Burst: [%i] | Slice: [%i]\n", task->name, task->priority, task->burst, temp->slice);
+    printf("%s: Priority: [%i] | Burst: [%i] | Slice: [%i] | Deadline: [%i]\n", task->name, task->priority, task->burst, temp->slice, task->deadline);
     temp = temp->next;
   }
 }
