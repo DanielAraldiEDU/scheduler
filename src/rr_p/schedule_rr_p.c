@@ -54,6 +54,7 @@ void schedule(int quantum)
     }
     else
     {
+      // tasks counter without slice
       int doneCounter = 0;
       struct node *firstTask = priorityArray[i].start;
       struct node *currentTask = firstTask;
