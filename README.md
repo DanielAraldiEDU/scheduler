@@ -47,12 +47,16 @@ Você poderá modificar os arquivos que já estão prontos, como o de manipulaç
 
 Como uma segunda thread extra, você deverá simular um contador de tempo global que irá simular o sleep das tasks de alta prioridade. Com isso, você deverá marcar as threads de prioridade 1 como real-time e implementar um dos dois algoritmos como escalonador totalmente preemptivo. Essa simulação de sleep permite que você force o escalonador a interromper qualquer task que esteja em execução quando o sleep da task real-time tenha feito ela despertar. Essa thread irá gerar o efeito da interrupção de software/hardware do sleep gerada pelas tasks de real-time.
 
-### Como executar?
-
-Entre dentro da pasta `src` e execute o seguinte comando:
+### Como executar o Round Robin?
 
 ```bash
-make -f Makefile clean && make -f Makefile rr_p && ./rr_p.exe ./rr-schedule_pri.txt
+make -f Makefile clean && make -f Makefile rr_p && make -f Makefile exe_rr_p
+```
+
+### Como executar o EDF?
+
+```bash
+make -f Makefile clean && make -f Makefile edf && make -f Makefile exe_edf
 ```
 
 ### Colaboradores
