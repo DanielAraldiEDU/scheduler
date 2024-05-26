@@ -10,5 +10,5 @@
 void run(Task *task, int slice, int *time)
 {
   *time += slice;
-  printf("Running task = [%s] [%d] [%d] for %d units.\t(%i tu)\n", task->name, task->priority, task->burst, slice, *time);
+  printf("Running task = [%s] [%d] [%d] for %d units.\t(%i time units)\n", task->name, task->priority, task->burst, slice, *time);
 }

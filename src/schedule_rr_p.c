@@ -30,8 +30,8 @@ void add(char *name, int priority, int burst)
   insertTask(&priorityArray[index], newTask);
 }
 
-  // reset priority array
-  void resetPriorityArray()
+// reset priority array
+void resetPriorityArray()
 {
   for (int index = 0; index < MAX_PRIORITY; index++)
     resetTasksLue(&priorityArray[index]);

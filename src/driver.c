@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 
   // execute the tasks in the ready queue
   struct executionNode *currentTask = readyQueue.start;
+  // time unit
   int time = 0;
 
   while (currentTask != NULL)
