@@ -30,33 +30,6 @@ void insertTask(struct taskLue *lue, Task *newTask)
   }
 }
 
-// delete the selected task from the list
-void delete(struct node **head, Task *task)
-{
-  struct node *temp;
-  struct node *prev;
-
-  temp = *head;
-  // special case - beginning of list
-  if (strcmp(task->name, temp->task->name) == 0)
-  {
-    *head = (*head)->next;
-  }
-  else
-  {
-    // interior or last element in the list
-    prev = *head;
-    temp = temp->next;
-    while (strcmp(task->name, temp->task->name) != 0)
-    {
-      prev = temp;
-      temp = temp->next;
-    }
-
-    prev->next = temp->next;
-  }
-}
-
 // traverse the task list
 void traverseTasks(struct taskLue lue)
 {

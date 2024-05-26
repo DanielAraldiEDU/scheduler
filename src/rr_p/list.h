@@ -30,7 +30,6 @@ struct executionLue
 
 // insert and delete operations.
 void insertTask(struct taskLue *lue, Task *newTask);
-void delete(struct node **head, Task *task);
 void traverseTasks(struct taskLue lue);
 void initializeLue(struct taskLue *lue);
 void resetTasksLue(struct taskLue *lue);

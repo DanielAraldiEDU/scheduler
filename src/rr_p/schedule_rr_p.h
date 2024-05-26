@@ -4,11 +4,11 @@
 // round robin lue
 extern struct executionLue readyQueue;
 
-// reset priority array
-void resetPriorityArray();
-
 // add a task to the list
 void add(char *name, int priority, int burst);
+
+// reset priority array
+void resetPriorityArray();
 
 // invoke the scheduler
 void schedule(int quantum);
