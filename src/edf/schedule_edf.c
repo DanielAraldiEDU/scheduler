@@ -51,8 +51,6 @@ void schedule()
   struct executionNode *currentExecutionNode = NULL;
   struct task *executingTask = NULL;
   struct task *currentTask = NULL;
-  // time execution
-  int timeExecuting = 0;
 
   // time
   for (int time = 0; time <= totalTimeBurst; time++)
@@ -63,6 +61,7 @@ void schedule()
     for (int i = 0; i < MAX_PRIORITY; i++)
     {
       currentNode = priorityArray[i].start;
+
       while (currentNode != NULL)
       {
         currentTask = currentNode->task;
@@ -71,17 +70,18 @@ void schedule()
         {
           if ((currentTask->deadline - currentTask->remainingBurst) == time)
           {
-            currentExecutionNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
-
-            if (executingTask != NULL)
+            if (executingTask != NULL && currentExecutionNode != NULL)
             {
-              currentExecutionNode->slice = timeExecuting;
-              executingTask->remainingBurst = executingTask->burst - timeExecuting;
+              if ((currentTask->burst - currentTask->remainingBurst) == 0)
+                currentExecutionNode->slice = currentTask->burst;
+              else
+                currentExecutionNode->slice = currentTask->remainingBurst;
             }
+
+            currentExecutionNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
 
             executingTask = currentTask;
             isSelected = 1;
-            timeExecuting = 0;
             break;
           }
         }
@@ -96,18 +96,18 @@ void schedule()
     if (isSelected)
       continue;
 
-    if (executingTask != NULL && timeExecuting < executingTask->remainingBurst)
+    if (executingTask != NULL)
     {
-      timeExecuting++;
-      continue;
-    }
-    else
-    {
-      if (executingTask != NULL)
-        executingTask->remainingBurst = 0;
-
-      timeExecuting = 0;
-      executingTask = NULL;
+      if (executingTask->remainingBurst > 0)
+      {
+        executingTask->remainingBurst--;
+        continue;
+      }
+      else
+      {
+        printf("Task %s is completed at %d\n", executingTask->name, time - 1);
+        executingTask = NULL;
+      }
     }
 
     for (int i = 0; i < MAX_PRIORITY; i++)
@@ -120,8 +120,7 @@ void schedule()
 
         if (currentTask->remainingBurst > 0)
         {
-          insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
-          currentTask->remainingBurst = 0;
+          currentExecutionNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
           executingTask = currentTask;
           isSelected = 1;
           break;
