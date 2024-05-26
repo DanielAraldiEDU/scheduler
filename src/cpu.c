@@ -7,7 +7,8 @@
 #include "task.h"
 
 // run this task for the specified time slice
-void run(Task *task, int slice)
+void run(Task *task, int slice, int *time)
 {
-  printf("Running task = [%s] [%d] [%d] for %d units.\n", task->name, task->priority, task->burst, slice);
+  *time += slice;
+  printf("Running task = [%s] [%d] [%d] for %d units.\t(%i tu)\n", task->name, task->priority, task->burst, slice, *time);
 }

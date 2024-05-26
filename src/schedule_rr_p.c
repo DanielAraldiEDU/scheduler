@@ -10,7 +10,7 @@ int priorityCounterArray[MAX_PRIORITY] = {0};
 // priority lue array
 struct taskLue priorityArray[MAX_PRIORITY];
 // round robin lue
-struct executionLue roundRobin;
+struct executionLue readyQueue;
 
 // add a task to the list
 void add(char *name, int priority, int burst)
@@ -30,8 +30,8 @@ void add(char *name, int priority, int burst)
   insertTask(&priorityArray[index], newTask);
 }
 
-// reset priority array
-void resetPriorityArray()
+  // reset priority array
+  void resetPriorityArray()
 {
   for (int index = 0; index < MAX_PRIORITY; index++)
     resetTasksLue(&priorityArray[index]);
@@ -40,7 +40,7 @@ void resetPriorityArray()
 // invoke the scheduler
 void schedule(int quantum)
 {
-  initializeExecutionLue(&roundRobin);
+  initializeExecutionLue(&readyQueue);
 
   for (int i = 0; i < MAX_PRIORITY; i++)
   {
@@ -50,7 +50,7 @@ void schedule(int quantum)
     if (priorityArray[i].start->next == NULL)
     {
       int slice = priorityArray[i].start->task->burst;
-      insertExecutionTask(&roundRobin, priorityArray[i].start->task, slice);
+      insertExecutionTask(&readyQueue, priorityArray[i].start->task, slice);
     }
     else
     {
@@ -72,12 +72,12 @@ void schedule(int quantum)
 
         if (currentTask->task->remainingBurst < quantum)
         {
-          insertExecutionTask(&roundRobin, currentTask->task, currentTask->task->remainingBurst);
+          insertExecutionTask(&readyQueue, currentTask->task, currentTask->task->remainingBurst);
           currentTask->task->remainingBurst = 0;
         }
         else
         {
-          insertExecutionTask(&roundRobin, currentTask->task, quantum);
+          insertExecutionTask(&readyQueue, currentTask->task, quantum);
           currentTask->task->remainingBurst -= quantum;
         }
 
@@ -91,7 +91,4 @@ void schedule(int quantum)
       }
     }
   }
-
-  traverseExecutionTasks(roundRobin);
-  resetExecutionLue(&roundRobin);
 }
