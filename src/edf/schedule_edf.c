@@ -5,8 +5,6 @@
 #include "list.h"
 #include "task.h"
 
-// total time burst
-int totalTimeBurst = 0;
 // task counter
 int taskCounter = 0;
 // counter of priority array
@@ -28,8 +26,6 @@ void add(char *name, int priority, int burst, int deadline)
   newTask->deadline = deadline;
   newTask->faulted = 0;
   const int index = priority - 1;
-
-  totalTimeBurst += burst;
 
   if (priorityCounterArray[index] == 0)
     initializeLue(&priorityArray[index]);
