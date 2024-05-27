@@ -14,6 +14,7 @@ typedef struct task
   int burst;
   int remainingBurst;
   int deadline;
+  int faulted;
 } Task;
 
 #endif

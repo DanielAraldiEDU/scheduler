@@ -67,7 +67,7 @@ void resetTasksLue(struct taskLue *lue)
 }
 
 // add a new task to the list of execution tasks
-struct executionNode *insertExecutionTask(struct executionLue *lue, Task *newTask, int slice)
+struct executionNode *insertExecutionTask(struct executionLue *lue, Task *newTask, int slice, int startTime)
 {
   // add the new task to the list
   struct executionNode *newExecutionNode = malloc(sizeof(struct executionNode));
@@ -75,6 +75,7 @@ struct executionNode *insertExecutionTask(struct executionLue *lue, Task *newTas
   newExecutionNode->task = newTask;
   newExecutionNode->next = NULL;
   newExecutionNode->slice = slice;
+  newExecutionNode->startTime = startTime;
 
   if (lue->start == NULL)
   {

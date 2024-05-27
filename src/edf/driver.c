@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
 
     // add the task to the scheduler's list of tasks
     add(name, priority, burst, deadline);
-    // printf("%s, %i, %i, %i\n", name, priority, burst, deadline);
     free(temp);
   }
 
@@ -54,11 +53,11 @@ int main(int argc, char *argv[])
   // time unit
   int time = 0;
 
-  // while (currentTask != NULL)
-  // {
-  //   run(currentTask->task, currentTask->slice, &time);
-  //   currentTask = currentTask->next;
-  // }
+  while (currentTask != NULL)
+  {
+    run(currentTask->task, currentTask->slice, &time);
+    currentTask = currentTask->next;
+  }
 
   // free the memory
   resetExecutionLue(&readyQueue);

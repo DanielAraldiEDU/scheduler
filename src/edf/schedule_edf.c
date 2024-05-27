@@ -7,6 +7,8 @@
 
 // total time burst
 int totalTimeBurst = 0;
+// task counter
+int taskCounter = 0;
 // counter of priority array
 int priorityCounterArray[MAX_PRIORITY] = {0};
 // priority lue array
@@ -24,6 +26,7 @@ void add(char *name, int priority, int burst, int deadline)
   newTask->burst = burst;
   newTask->remainingBurst = burst;
   newTask->deadline = deadline;
+  newTask->faulted = 0;
   const int index = priority - 1;
 
   totalTimeBurst += burst;
@@ -33,6 +36,8 @@ void add(char *name, int priority, int burst, int deadline)
 
   priorityCounterArray[index] += 1;
   insertTask(&priorityArray[index], newTask);
+
+  taskCounter++;
 }
 
 // reset priority array
@@ -47,81 +52,67 @@ void schedule()
 {
   initializeExecutionLue(&readyQueue);
 
-  struct node *currentNode = NULL;
-  struct executionNode *currentExecutionNode = NULL;
+  struct executionNode *executingNode = NULL;
   struct task *executingTask = NULL;
-  struct task *currentTask = NULL;
-
-  // time
-  for (int time = 0; time <= totalTimeBurst; time++)
+  // `isSelected` is boolean value
+  int isSelected = 0;
+  // `isNewTask` is boolean value
+  int isNewTask = 0;
+  int time = 0;
+  int completedTasksCounter = 0;
+  int faultedTasksCounter = 0;
+  
+  while (completedTasksCounter + faultedTasksCounter < taskCounter)
   {
-    // `isSelected` is boolean value
-    int isSelected = 0;
-
+    if (executingTask != NULL && executingTask->remainingBurst == 0)
+    {
+      completedTasksCounter++;
+      isSelected = 0;
+      executingTask = NULL;
+    }
+      
     for (int i = 0; i < MAX_PRIORITY; i++)
     {
-      currentNode = priorityArray[i].start;
+      struct node *currentNode = priorityArray[i].start;
 
       while (currentNode != NULL)
       {
-        currentTask = currentNode->task;
+        isNewTask = 0;
+        struct task *currentTask = currentNode->task;
 
-        if (currentTask->remainingBurst > 0)
+        if (currentTask->faulted == 1 || currentTask->remainingBurst == 0)
         {
-          if ((currentTask->deadline - currentTask->remainingBurst) == time)
-          {
-            if (executingTask != NULL && currentExecutionNode != NULL)
-            {
-              if ((currentTask->burst - currentTask->remainingBurst) == 0)
-                currentExecutionNode->slice = currentTask->burst;
-              else
-                currentExecutionNode->slice = currentTask->remainingBurst;
-            }
-
-            currentExecutionNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
-
-            executingTask = currentTask;
-            isSelected = 1;
-            break;
-          }
+          currentNode = currentNode->next;
+          continue;
         }
 
-        currentNode = currentNode->next;
-      }
+        const int currentTaskLoose = currentTask->deadline - currentTask->remainingBurst;
+        if (currentTaskLoose < time) {
+          faultedTasksCounter++;
+          currentTask->faulted = 1;
+          currentNode = currentNode->next;
+          continue;
+        }
 
-      if (isSelected)
-        break;
-    }
-
-    if (isSelected)
-      continue;
-
-    if (executingTask != NULL)
-    {
-      if (executingTask->remainingBurst > 0)
-      {
-        executingTask->remainingBurst--;
-        continue;
-      }
-      else
-      {
-        printf("Task %s is completed at %d\n", executingTask->name, time - 1);
-        executingTask = NULL;
-      }
-    }
-
-    for (int i = 0; i < MAX_PRIORITY; i++)
-    {
-      currentNode = priorityArray[i].start;
-
-      while (currentNode != NULL)
-      {
-        currentTask = currentNode->task;
-
-        if (currentTask->remainingBurst > 0)
+        if (currentTask != executingTask && currentTaskLoose == time)
         {
-          currentExecutionNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst);
+          if (executingTask != NULL)
+          {
+            const int executionTaskLoose = executingTask->deadline - executingTask->remainingBurst;
+            if (executingTask->priority <= currentTask->priority) {
+              if (executionTaskLoose <= time) {
+                currentNode = currentNode->next;
+                continue;
+              }
+            } else {
+              executingTask->faulted = 1;
+            }
+            executingNode->slice = time + 1 - executingNode->startTime;
+          }
+          
+          executingNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst, time + 1);
           executingTask = currentTask;
+          isNewTask = 1;
           isSelected = 1;
           break;
         }
@@ -129,14 +120,64 @@ void schedule()
         currentNode = currentNode->next;
       }
 
-      if (isSelected)
+      if (isNewTask)
         break;
     }
-  }
 
-  // for (int i = 0; i < MAX_PRIORITY; i++)
-  // {
-  //   traverseTasks(priorityArray[i]);
-  // }
-  traverseExecutionTasks(readyQueue);
+    for (int i = 0; i < MAX_PRIORITY && executingTask == NULL; i++)
+    {
+      struct node *currentNode = priorityArray[i].start;
+      struct task *earliestDeadlineTask = NULL;
+
+      int priorityCounter = 0;
+      
+      while (currentNode != NULL)
+      {
+        priorityCounter++;
+        struct task *currentTask = currentNode->task;
+
+        if (currentTask->faulted == 1 || currentTask->remainingBurst == 0)
+        {
+          currentNode = currentNode->next;
+          continue;
+        }
+
+        const int currentTaskLoose = currentTask->deadline - currentTask->remainingBurst;
+
+        if (currentTaskLoose < time) {
+          faultedTasksCounter++;
+          currentTask->faulted = 1;
+          currentNode = currentNode->next;
+          continue;
+        }
+
+        if (earliestDeadlineTask == NULL) 
+          earliestDeadlineTask = currentTask;
+        else if (earliestDeadlineTask->deadline > currentTask->deadline)
+          earliestDeadlineTask = currentTask;
+        
+        if (priorityCounter == priorityCounterArray[i])
+        {
+          executingNode = insertExecutionTask(&readyQueue, earliestDeadlineTask, earliestDeadlineTask->burst, time + 1);
+          executingTask = earliestDeadlineTask;
+          isNewTask = 1;
+          isSelected = 1;
+          break;
+        } else {
+          currentNode = currentNode->next;
+        }
+      }
+
+      if (isNewTask)
+        break;
+    }
+
+    if (isSelected) {
+      if (executingTask->remainingBurst > 0)
+      {
+        time++;
+        executingTask->remainingBurst--;
+      }
+    }
+  }
 }

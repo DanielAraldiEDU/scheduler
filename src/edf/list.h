@@ -19,6 +19,7 @@ struct taskLue
 struct executionNode
 {
   Task *task;
+  int startTime;
   int slice;
   struct executionNode *next;
 };
@@ -34,7 +35,7 @@ void traverseTasks(struct taskLue lue);
 void initializeLue(struct taskLue *lue);
 void resetTasksLue(struct taskLue *lue);
 
-struct executionNode *insertExecutionTask(struct executionLue *lue, Task *newTask, int slice);
+struct executionNode *insertExecutionTask(struct executionLue *lue, Task *newTask, int slice, int startTime);
 void traverseExecutionTasks(struct executionLue lue);
 void initializeExecutionLue(struct executionLue *lue);
 void resetExecutionLue(struct executionLue *lue);
