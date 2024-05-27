@@ -61,7 +61,7 @@ void schedule()
   int time = 0;
   int completedTasksCounter = 0;
   int faultedTasksCounter = 0;
-  
+
   while (completedTasksCounter + faultedTasksCounter < taskCounter)
   {
     if (executingTask != NULL && executingTask->remainingBurst == 0)
@@ -70,7 +70,7 @@ void schedule()
       isSelected = 0;
       executingTask = NULL;
     }
-      
+
     for (int i = 0; i < MAX_PRIORITY; i++)
     {
       struct node *currentNode = priorityArray[i].start;
@@ -87,7 +87,8 @@ void schedule()
         }
 
         const int currentTaskLoose = currentTask->deadline - currentTask->remainingBurst;
-        if (currentTaskLoose < time) {
+        if (currentTaskLoose < time)
+        {
           faultedTasksCounter++;
           currentTask->faulted = 1;
           currentNode = currentNode->next;
@@ -99,17 +100,21 @@ void schedule()
           if (executingTask != NULL)
           {
             const int executionTaskLoose = executingTask->deadline - executingTask->remainingBurst;
-            if (executingTask->priority <= currentTask->priority) {
-              if (executionTaskLoose <= time) {
+            if (executingTask->priority <= currentTask->priority)
+            {
+              if (executionTaskLoose <= time)
+              {
                 currentNode = currentNode->next;
                 continue;
               }
-            } else {
+            }
+            else
+            {
               executingTask->faulted = 1;
             }
             executingNode->slice = time + 1 - executingNode->startTime;
           }
-          
+
           executingNode = insertExecutionTask(&readyQueue, currentTask, currentTask->burst, time + 1);
           executingTask = currentTask;
           isNewTask = 1;
@@ -130,7 +135,7 @@ void schedule()
       struct task *earliestDeadlineTask = NULL;
 
       int priorityCounter = 0;
-      
+
       while (currentNode != NULL)
       {
         priorityCounter++;
@@ -144,18 +149,19 @@ void schedule()
 
         const int currentTaskLoose = currentTask->deadline - currentTask->remainingBurst;
 
-        if (currentTaskLoose < time) {
+        if (currentTaskLoose < time)
+        {
           faultedTasksCounter++;
           currentTask->faulted = 1;
           currentNode = currentNode->next;
           continue;
         }
 
-        if (earliestDeadlineTask == NULL) 
+        if (earliestDeadlineTask == NULL)
           earliestDeadlineTask = currentTask;
         else if (earliestDeadlineTask->deadline > currentTask->deadline)
           earliestDeadlineTask = currentTask;
-        
+
         if (priorityCounter == priorityCounterArray[i])
         {
           executingNode = insertExecutionTask(&readyQueue, earliestDeadlineTask, earliestDeadlineTask->burst, time + 1);
@@ -163,7 +169,9 @@ void schedule()
           isNewTask = 1;
           isSelected = 1;
           break;
-        } else {
+        }
+        else
+        {
           currentNode = currentNode->next;
         }
       }
@@ -172,7 +180,8 @@ void schedule()
         break;
     }
 
-    if (isSelected) {
+    if (isSelected)
+    {
       if (executingTask->remainingBurst > 0)
       {
         time++;
